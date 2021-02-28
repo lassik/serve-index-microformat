@@ -270,7 +270,7 @@ function createHtmlFileList(files, dir, useIcons, view) {
       + '</li>') : '');
 
   html += files.map(function (file) {
-    var classes = [];
+    var classes = ['u-url'];
     var isDir = file.stat && file.stat.isDirectory();
     var path = dir.split('/').map(function (c) { return encodeURIComponent(c); });
 
@@ -294,20 +294,29 @@ function createHtmlFileList(files, dir, useIcons, view) {
 
     path.push(encodeURIComponent(file.name));
 
-    var date = file.stat && file.name !== '..'
-      ? file.stat.mtime.toLocaleDateString() + ' ' + file.stat.mtime.toLocaleTimeString()
-      : '';
+    var dateLocale = '';
+    var dateIso = '';
+
+    if (file.stat && file.name !== '..') {
+      dateLocale = file.stat.mtime.toLocaleDateString() + ' ' +
+        file.stat.mtime.toLocaleTimeString();
+      dateIso = file.stat.mtime.toISOString();
+    }
+
     var size = file.stat && !isDir
       ? file.stat.size
       : '';
 
-    return '<li><a href="'
-      + escapeHtml(normalizeSlashes(normalize(path.join('/'))))
+    var url = normalizeSlashes(normalize(path.join('/')));
+
+    return '<li class="h-dirent"><a href="'
+      + escapeHtml(url)
       + '" class="' + escapeHtml(classes.join(' ')) + '"'
       + ' title="' + escapeHtml(file.name) + '">'
-      + '<span class="name">' + escapeHtml(file.name) + '</span>'
-      + '<span class="size">' + escapeHtml(size) + '</span>'
-      + '<span class="date">' + escapeHtml(date) + '</span>'
+      + '<span class="name p-name">' + escapeHtml(file.name) + '</span>'
+      + '<span class="size p-size">' + escapeHtml(size) + '</span>'
+      + '<time class="date dt-time" datetime="'
+      + escapeHtml(dateIso) + '">' + escapeHtml(dateLocale) + '</time>'
       + '</a></li>';
   }).join('\n');
 
